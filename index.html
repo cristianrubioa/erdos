@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>erdős — Unit Distance</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --panel-w: 20rem;
+      --header-h: 64px;
+      --accent: #3b82f6;
+    }
+
+    html, body {
+      height: 100%;
+      background: #08080c;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0 1.5rem;
+      background: rgba(8, 8, 12, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    #header .brand {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #e2e8f0;
+    }
+
+    #header .subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Panel ── */
+    #panel {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      width: var(--panel-w);
+      height: calc(100vh - var(--header-h));
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      background: rgba(8, 8, 12, 0.70);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      overflow: hidden;
+    }
+
+    #panel-scroll {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+      min-height: 0;
+    }
+
+    /* ── Canvas area ── */
+    #canvas-wrap {
+      position: fixed;
+      top: var(--header-h);
+      left: var(--panel-w);
+      right: 0;
+      bottom: 0;
+    }
+
+    #canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── Ring buttons ── */
+    .ring-group {
+      display: flex;
+      gap: 0.375rem;
+    }
+
+    .ring-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.65rem 0.25rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.5rem;
+      color: #9ca3af;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .ring-btn i { font-size: 1.2rem; }
+
+    .ring-btn:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+    .ring-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* ── Sliders ── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slider-row i {
+      width: 1.2rem;
+      text-align: center;
+      color: #6b7280;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .slider-row input[type=range] {
+      flex: 1;
+      accent-color: var(--accent);
+      height: 3px;
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-size: 0.82rem;
+      color: #9ca3af;
+      width: 2.5rem;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Theme swatches ── */
+    .swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.375rem;
+    }
+
+    .swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.1s;
+      position: relative;
+    }
+
+    .swatch:hover { transform: scale(1.1); }
+
+    .swatch.active { border-color: var(--accent); }
+
+    .swatch-custom {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .swatch-custom input[type=color] {
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .swatch-custom i { font-size: 1.7rem; color: #9ca3af; pointer-events: none; }
+
+    /* ── Export buttons ── */
+    .export-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .export-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.85rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.5rem;
+      color: #9ca3af;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+
+    .export-btn:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+    .export-btn i { width: 1rem; text-align: center; flex-shrink: 0; }
+
+    /* ── Custom size inputs ── */
+    #custom-size-row {
+      display: flex;
+      gap: 0.375rem;
+      align-items: flex-start;
+    }
+
+    .input-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .input-label { font-size: 0.68rem; color: #6b7280; }
+
+    #custom-size-row input[type=number] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.375rem;
+      color: #e2e8f0;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.5rem;
+      min-width: 0;
+    }
+
+    #custom-size-row > span { font-size: 0.78rem; color: #6b7280; padding-top: 0.4rem; }
+
+    #custom-size-row button {
+      padding: 0.35rem 0.6rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 0.375rem;
+      color: #fff;
+      font-size: 0.78rem;
+      cursor: pointer;
+      opacity: 0.9;
+      flex-shrink: 0;
+    }
+
+    #custom-size-row button:hover { opacity: 1; }
+
+    /* ── Ring disclaimer ── */
+    .ring-disclaimer {
+      font-size: 0.8rem;
+      color: #6b7280;
+      line-height: 1.4;
+      margin-top: 0.4rem;
+    }
+
+    .ring-disclaimer a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-style: italic;
+      font-weight: 700;
+      transition: color 0.15s;
+    }
+
+    .ring-disclaimer a:hover { color: #d1d5db; }
+
+    /* ── Footer ── */
+    #panel-footer {
+      flex-shrink: 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    #panel-footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    #panel-footer a:hover { color: #d1d5db; }
+
+    #panel-footer .heart { color: #f87171; }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    /* ── Loading spinner ── */
+    #computing {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(8,8,12,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    #computing.visible { opacity: 1; }
+
+    /* ── Hidden ── */
+    .hidden { display: none !important; }
+
+    /* ── Page loader ── */
+    #page-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #08080c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s ease;
+    }
+
+    #page-loader.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #page-loader i {
+      font-size: 2rem;
+      color: #3b82f6;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header id="header">
+    <span class="brand">erdős</span>
+    <span class="subtitle">unit distance</span>
+  </header>
+
+  <!-- Left panel -->
+  <aside id="panel">
+    <div id="panel-scroll">
+
+      <!-- Ring selector -->
+      <div>
+        <div class="section-label" style="margin-bottom:0.5rem">Ring</div>
+        <div class="ring-group">
+          <button class="ring-btn active" data-ring="gauss">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Grid</span>
+          </button>
+          <button class="ring-btn" data-ring="cm">
+            <i class="fa-solid fa-snowflake"></i>
+            <span>CM</span>
+          </button>
+        </div>
+        <p class="ring-disclaimer" id="disclaimer-gauss">Classic Erdős construction (1946). Points on the Gaussian integer lattice; edges connect pairs at unit distance.</p>
+        <p class="ring-disclaimer hidden" id="disclaimer-cm">Explores the construction from OpenAI's 2025 result, which disproves the Erdős unit distance conjecture. <a href="https://cdn.openai.com/pdf/74c24085-19b0-4534-9c90-465b8e29ad73/unit-distance-proof.pdf" target="_blank" rel="noopener">Paper</a> · <a href="https://openai.com/index/model-disproves-discrete-geometry-conjecture/" target="_blank" rel="noopener">Article</a></p>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Parameters -->
+      <div>
+        <div class="section-label" style="margin-bottom:0.5rem">Parameters</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem">
+
+          <div id="n-slider-row" class="slider-row">
+            <i class="fa-solid fa-circle-nodes"></i>
+            <input type="range" id="slider-n" min="1" max="40" value="8" step="1" />
+            <span class="slider-val" id="val-n">8</span>
+          </div>
+
+          <div class="slider-row">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="range" id="slider-scale" min="0.5" max="4.0" value="1.0" step="0.1" />
+            <span class="slider-val" id="val-scale">1.0</span>
+          </div>
+
+          <div class="slider-row">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <input type="range" id="slider-glow" min="0" max="30" value="12" step="1" />
+            <span class="slider-val" id="val-glow">12</span>
+          </div>
+
+          <div class="slider-row">
+            <i class="fa-solid fa-rotate"></i>
+            <input type="range" id="slider-angle" min="0" max="360" value="0" step="1" />
+            <span class="slider-val" id="val-angle">0°</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Theme -->
+      <div>
+        <div class="section-label" style="margin-bottom:0.5rem">Theme</div>
+        <div class="swatches-grid">
+          <div class="swatch active" data-theme="cosmic" style="background:#3b82f6" title="Cosmic"></div>
+          <div class="swatch" data-theme="ember"   style="background:#f97316" title="Ember"></div>
+          <div class="swatch" data-theme="aurora"  style="background:#10b981" title="Aurora"></div>
+          <div class="swatch" data-theme="neon"    style="background:#ec4899" title="Neon"></div>
+          <div class="swatch" data-theme="obsidian" style="background:#94a3b8" title="Obsidian"></div>
+          <div class="swatch" data-theme="sakura"  style="background:#e879f9" title="Sakura"></div>
+          <div class="swatch swatch-custom active-custom" data-theme="custom" title="Custom">
+            <i class="fa-solid fa-palette"></i>
+            <input type="color" id="custom-color" value="#00ffcc" />
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Export -->
+      <div>
+        <div class="section-label" style="margin-bottom:0.5rem">Export</div>
+        <div class="export-group">
+          <button class="export-btn" id="btn-phone">
+            <i class="fa-solid fa-mobile-screen"></i>
+            <span>Phone  <span style="color:#4b5563;font-size:0.72rem">2160 × 3840</span></span>
+          </button>
+          <button class="export-btn" id="btn-desktop">
+            <i class="fa-solid fa-display"></i>
+            <span>Desktop  <span style="color:#4b5563;font-size:0.72rem">3840 × 2160</span></span>
+          </button>
+          <div id="custom-size-row">
+            <div class="input-col">
+              <input type="number" id="cw" placeholder="W" min="100" value="1920" />
+              <span class="input-label">Width</span>
+            </div>
+            <span>×</span>
+            <div class="input-col">
+              <input type="number" id="ch" placeholder="H" min="100" value="1080" />
+              <span class="input-label">Height</span>
+            </div>
+            <button id="btn-custom-export"><i class="fa-solid fa-download"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div id="panel-footer">
+      Made with <span class="heart">♥</span> by
+      <a href="https://github.com/cristianrubioa" target="_blank" rel="noopener">@cristianrubioa</a>
+    </div>
+  </aside>
+
+  <!-- Canvas -->
+  <div id="canvas-wrap">
+    <canvas id="main-canvas"></canvas>
+  </div>
+
+  <!-- Computing indicator -->
+  <div id="computing">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <span>Computing…</span>
+  </div>
+
+  <!-- Page loader (removed by main.ts after init) -->
+  <div id="page-loader">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
