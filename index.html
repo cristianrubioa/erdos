@@ -164,6 +164,11 @@
       flex-shrink: 0;
     }
 
+    .n-spacer { display: none; visibility: hidden; pointer-events: none; }
+
+    .params.cm-mode #n-slider-row { display: none; }
+    .params.cm-mode .n-spacer { display: flex; }
+
     /* ── Theme swatches ── */
     .swatches-grid {
       display: grid;
@@ -405,7 +410,7 @@
       <!-- Parameters -->
       <div>
         <div class="section-label" style="margin-bottom:0.5rem">Parameters</div>
-        <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div class="params" style="display:flex;flex-direction:column;gap:0.5rem">
 
           <div id="n-slider-row" class="slider-row">
             <i class="fa-solid fa-circle-nodes"></i>
@@ -429,6 +434,12 @@
             <i class="fa-solid fa-rotate"></i>
             <input type="range" id="slider-angle" min="0" max="360" value="0" step="1" />
             <span class="slider-val" id="val-angle">0°</span>
+          </div>
+
+          <div class="n-spacer slider-row" aria-hidden="true">
+            <i class="fa-solid fa-circle-nodes"></i>
+            <input type="range" tabindex="-1" disabled />
+            <span class="slider-val"></span>
           </div>
 
         </div>
