@@ -118,7 +118,7 @@ function applyAccent() {
 // ── Slider element refs ────────────────────────────────────────────────────
 const nSlider    = document.getElementById('slider-n') as HTMLInputElement
 const nVal       = document.getElementById('val-n')!
-const nSliderRow = document.getElementById('n-slider-row')!
+const paramsPanel = document.querySelector('.params')!
 const scaleSlider = document.getElementById('slider-scale') as HTMLInputElement
 const scaleVal    = document.getElementById('val-scale')!
 const glowSlider  = document.getElementById('slider-glow') as HTMLInputElement
@@ -165,7 +165,7 @@ document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach(btn => {
     btn.classList.add('active')
     currentRing = btn.dataset.ring as RingName
     safeSet('erdos-ring', currentRing)
-    nSliderRow.style.display = currentRing === 'cm' ? 'none' : ''
+    paramsPanel.classList.toggle('cm-mode', currentRing === 'cm')
     loadRingSettings(currentRing)
     updateDisclaimer(currentRing)
     dispatchWorkerDebounced()
@@ -262,7 +262,7 @@ currentRing = savedRing
 document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach(btn => {
   btn.classList.toggle('active', btn.dataset.ring === currentRing)
 })
-nSliderRow.style.display = currentRing === 'cm' ? 'none' : ''
+paramsPanel.classList.toggle('cm-mode', currentRing === 'cm')
 
 loadRingSettings(currentRing)
 updateDisclaimer(currentRing)
