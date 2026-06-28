@@ -359,27 +359,8 @@
     .hidden { display: none !important; }
 
     /* ── Page loader ── */
-    #page-loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #08080c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.25s ease;
-    }
-
-    #page-loader.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #page-loader i {
-      font-size: 2rem;
-      color: #3b82f6;
-      opacity: 0.7;
-    }
+    #page-loader { background: #08080c; }
+    #page-loader i { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -521,7 +502,7 @@
   </div>
 
   <!-- Page loader (removed by main.ts after init) -->
-  <div id="page-loader">
+  <div id="page-loader" class="crubio-loader">
     <i class="fa-solid fa-circle-notch fa-spin"></i>
   </div>
 
