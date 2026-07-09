@@ -128,17 +128,14 @@ const angleVal    = document.getElementById('val-angle')!
 
 // ── Per-ring settings ──────────────────────────────────────────────────────
 function loadRingSettings(ring: RingName) {
+  const defaults = DEFAULTS[ring]
   if (ring === 'gauss') {
-    currentN     = Number(safeGet('erdos-gauss-n',     String(DEFAULTS.gauss.n)))
-    currentScale = Number(safeGet('erdos-gauss-scale', String(DEFAULTS.gauss.scale)))
-    currentGlow  = Number(safeGet('erdos-gauss-glow',  String(DEFAULTS.gauss.glow)))
-    currentAngle = Number(safeGet('erdos-gauss-angle', String(DEFAULTS.gauss.angle)))
-    nSlider.value  = String(currentN);     nVal.textContent  = String(currentN)
-  } else {
-    currentScale = Number(safeGet('erdos-cm-scale', String(DEFAULTS.cm.scale)))
-    currentGlow  = Number(safeGet('erdos-cm-glow',  String(DEFAULTS.cm.glow)))
-    currentAngle = Number(safeGet('erdos-cm-angle', String(DEFAULTS.cm.angle)))
+    currentN = Number(safeGet('erdos-gauss-n', String(DEFAULTS.gauss.n)))
+    nSlider.value = String(currentN); nVal.textContent = String(currentN)
   }
+  currentScale = Number(safeGet(`erdos-${ring}-scale`, String(defaults.scale)))
+  currentGlow  = Number(safeGet(`erdos-${ring}-glow`,  String(defaults.glow)))
+  currentAngle = Number(safeGet(`erdos-${ring}-angle`, String(defaults.angle)))
   scaleSlider.value = String(currentScale); scaleVal.textContent = currentScale.toFixed(1)
   glowSlider.value  = String(currentGlow);  glowVal.textContent  = String(currentGlow)
   angleSlider.value = String(currentAngle); angleVal.textContent = currentAngle + '°'
@@ -149,13 +146,8 @@ const disclaimerGauss = document.getElementById('disclaimer-gauss')!
 const disclaimerCm    = document.getElementById('disclaimer-cm')!
 
 function updateDisclaimer(ring: RingName) {
-  if (ring === 'gauss') {
-    disclaimerGauss.classList.remove('hidden')
-    disclaimerCm.classList.add('hidden')
-  } else {
-    disclaimerGauss.classList.add('hidden')
-    disclaimerCm.classList.remove('hidden')
-  }
+  disclaimerGauss.classList.toggle('hidden', ring !== 'gauss')
+  disclaimerCm.classList.toggle('hidden', ring === 'gauss')
 }
 
 // ── Ring selector ──────────────────────────────────────────────────────────
@@ -173,33 +165,25 @@ document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach(btn => {
 })
 
 // ── Sliders ────────────────────────────────────────────────────────────────
-nSlider.addEventListener('input', () => {
-  currentN = Number(nSlider.value)
-  nVal.textContent = String(currentN)
-  safeSet('erdos-gauss-n', String(currentN))
-  dispatchWorkerDebounced()
-})
+function bindSlider(
+  slider: HTMLInputElement,
+  valEl: Element,
+  format: (v: number) => string,
+  storageKey: () => string,
+  onChange: (v: number) => void,
+) {
+  slider.addEventListener('input', () => {
+    const v = Number(slider.value)
+    valEl.textContent = format(v)
+    safeSet(storageKey(), String(v))
+    onChange(v)
+  })
+}
 
-scaleSlider.addEventListener('input', () => {
-  currentScale = Number(scaleSlider.value)
-  scaleVal.textContent = currentScale.toFixed(1)
-  safeSet(`erdos-${currentRing}-scale`, String(currentScale))
-  scheduleRender()
-})
-
-glowSlider.addEventListener('input', () => {
-  currentGlow = Number(glowSlider.value)
-  glowVal.textContent = String(currentGlow)
-  safeSet(`erdos-${currentRing}-glow`, String(currentGlow))
-  scheduleRender()
-})
-
-angleSlider.addEventListener('input', () => {
-  currentAngle = Number(angleSlider.value)
-  angleVal.textContent = currentAngle + '°'
-  safeSet(`erdos-${currentRing}-angle`, String(currentAngle))
-  scheduleRender()
-})
+bindSlider(nSlider, nVal, String, () => 'erdos-gauss-n', v => { currentN = v; dispatchWorkerDebounced() })
+bindSlider(scaleSlider, scaleVal, v => v.toFixed(1), () => `erdos-${currentRing}-scale`, v => { currentScale = v; scheduleRender() })
+bindSlider(glowSlider, glowVal, String, () => `erdos-${currentRing}-glow`, v => { currentGlow = v; scheduleRender() })
+bindSlider(angleSlider, angleVal, v => v + '°', () => `erdos-${currentRing}-angle`, v => { currentAngle = v; scheduleRender() })
 
 // ── Theme swatches ─────────────────────────────────────────────────────────
 document.querySelectorAll<HTMLDivElement>('.swatch').forEach(sw => {

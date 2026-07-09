@@ -25,33 +25,29 @@ function loadCmDataset(): Promise<LoadedDataset> {
   return cmDatasetPromise
 }
 
+function post(out: WorkerOutput) {
+  ;(self as DedicatedWorkerGlobalScope).postMessage(out, [out.points.buffer, out.edges.buffer])
+}
+
 self.onmessage = (e: MessageEvent<WorkerInput>) => {
   const { ring, n } = e.data
-  let result: { points: Float32Array<ArrayBuffer>; edges: Uint32Array<ArrayBuffer> }
 
   switch (ring) {
     case 'gauss':
-      result = computeGauss(n)
-      break
+      post({ ...computeGauss(n), ring })
+      return
     case 'cm':
       loadCmDataset()
-        .then(dataset => {
-          const out: WorkerOutput = { ...dataset, ring }
-          ;(self as DedicatedWorkerGlobalScope).postMessage(out, [out.points.buffer, out.edges.buffer])
-        })
+        .then(dataset => post({ ...dataset, ring }))
         .catch(err => {
           console.error(err)
-          const out: WorkerOutput = {
+          post({
             points: new Float32Array(),
             edges: new Uint32Array(),
             ring,
             error: `${err instanceof Error ? err.message : String(err)} (${DATASET_URL})`,
-          }
-          ;(self as DedicatedWorkerGlobalScope).postMessage(out, [out.points.buffer, out.edges.buffer])
+          })
         })
       return
   }
-
-  const out: WorkerOutput = { ...result, ring }
-  ;(self as DedicatedWorkerGlobalScope).postMessage(out, [out.points.buffer, out.edges.buffer])
 }
