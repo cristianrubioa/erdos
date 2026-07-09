@@ -28,14 +28,10 @@ def phi(n: int) -> int:
     return result
 
 
-def to_complex(z) -> complex:
-    return complex(z)
-
-
 def build_points(m: int, coeff_range: int, radius: float, decimals: int):
     degree = phi(m)
     if pari is not None:
-        zeta = to_complex(pari(f"exp(2*Pi*I/{m})"))
+        zeta = complex(pari(f"exp(2*Pi*I/{m})"))
         engine = "cypari2"
     else:
         zeta = complex(math.cos(2 * math.pi / m), math.sin(2 * math.pi / m))
@@ -76,7 +72,7 @@ def build_edges(coords, index, zeta, m: int, decimals: int):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Precompute Nuevo dataset using cyclotomic field.")
+    parser = argparse.ArgumentParser(description="Precompute CM dataset using cyclotomic field.")
     parser.add_argument("--m", type=int, default=12, help="Cyclotomic order (default: 12)")
     parser.add_argument("--coeff", type=int, default=2, help="Coefficient range for basis (default: 2)")
     parser.add_argument("--radius", type=float, default=4.0, help="Radius filter (default: 4.0)")
@@ -84,7 +80,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("public/data/nuevo-cyclo-m12.json"),
+        default=Path("public/data/cm.json"),
         help="Output JSON path",
     )
     args = parser.parse_args()
@@ -97,7 +93,7 @@ def main():
         points_flat.extend([float(z.real), float(z.imag)])
 
     meta = {
-        "name": f"nuevo-cyclo-m{args.m}",
+        "name": f"cm-cyclo-m{args.m}",
         "source": "cyclotomic-precompute",
         "engine": engine,
         "generatedAt": datetime.now(timezone.utc).isoformat(),
