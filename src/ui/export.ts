@@ -1,4 +1,4 @@
-import { render, type RenderConfig } from '../renderer/canvas-renderer'
+import { type RenderConfig, render } from '../renderer/canvas-renderer'
 import type { RingName, ThemeName } from '../worker/types'
 
 export interface ExportConfig extends RenderConfig {
@@ -16,10 +16,17 @@ export function exportPNG(
 ): void {
   let w: number, h: number, label: string
 
-  if (format === 'phone')   { w = 2160; h = 3840; label = 'phone' }
-  else if (format === 'desktop') { w = 3840; h = 2160; label = 'desktop' }
-  else {
-    w = format.w; h = format.h
+  if (format === 'phone') {
+    w = 2160
+    h = 3840
+    label = 'phone'
+  } else if (format === 'desktop') {
+    w = 3840
+    h = 2160
+    label = 'desktop'
+  } else {
+    w = format.w
+    h = format.h
     label = `${w}x${h}`
   }
 
@@ -30,7 +37,7 @@ export function exportPNG(
   render(ctx, points, edges, { ...config, showStats: false })
 
   const filename = `erdos-${config.ring}-${config.theme}-${label}.png`
-  canvas.toBlob(blob => {
+  canvas.toBlob((blob) => {
     if (!blob) return
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

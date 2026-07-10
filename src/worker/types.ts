@@ -1,5 +1,12 @@
 export type RingName = 'gauss' | 'cm'
-export type ThemeName = 'cosmic' | 'ember' | 'aurora' | 'neon' | 'obsidian' | 'sakura' | 'custom'
+export type ThemeName =
+  | 'cosmic'
+  | 'ember'
+  | 'aurora'
+  | 'neon'
+  | 'obsidian'
+  | 'sakura'
+  | 'custom'
 
 export interface WorkerInput {
   ring: RingName

@@ -25,11 +25,17 @@ export function render(
   if (points.length === 0) return
 
   // Auto-fit bounding box
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity
   for (let i = 0; i < points.length; i += 2) {
-    const x = points[i], y = points[i + 1]
-    if (x < minX) minX = x; if (x > maxX) maxX = x
-    if (y < minY) minY = y; if (y > maxY) maxY = y
+    const x = points[i],
+      y = points[i + 1]
+    if (x < minX) minX = x
+    if (x > maxX) maxX = x
+    if (y < minY) minY = y
+    if (y > maxY) maxY = y
   }
   const cxMath = (minX + maxX) / 2
   const cyMath = (minY + maxY) / 2
@@ -39,7 +45,8 @@ export function render(
 
   // Project math → screen coordinates (manual transform, no ctx.save scaling)
   const angle = (angleDeg * Math.PI) / 180
-  const cosA = Math.cos(angle), sinA = Math.sin(angle)
+  const cosA = Math.cos(angle),
+    sinA = Math.sin(angle)
   const n = points.length >> 1
   const sx = new Float32Array(n)
   const sy = new Float32Array(n)
@@ -50,19 +57,20 @@ export function render(
     const rx = mx * cosA - my * sinA
     const ry = mx * sinA + my * cosA
     sx[i] = W / 2 + rx * totalScale
-    sy[i] = H / 2 - ry * totalScale    // flip Y so math up = visual up
+    sy[i] = H / 2 - ry * totalScale // flip Y so math up = visual up
   }
 
   // Sizes in actual screen pixels
-  const edgeW  = Math.max(0.6, Math.min(1.8, totalScale * 0.025))
-  const nodeR  = Math.max(1.2, Math.min(5, totalScale * 0.055))
-  const glowW  = edgeW + glow * 0.25
-  const blur   = glow * 1.8             // shadow blur in CSS/screen pixels
+  const edgeW = Math.max(0.6, Math.min(1.8, totalScale * 0.025))
+  const nodeR = Math.max(1.2, Math.min(5, totalScale * 0.055))
+  const glowW = edgeW + glow * 0.25
+  const blur = glow * 1.8 // shadow blur in CSS/screen pixels
 
   // Helper: draw all edges into current path
   function pathEdges() {
     for (let i = 0; i < edges.length; i += 2) {
-      const a = edges[i], b = edges[i + 1]
+      const a = edges[i],
+        b = edges[i + 1]
       ctx.moveTo(sx[a], sy[a])
       ctx.lineTo(sx[b], sy[b])
     }

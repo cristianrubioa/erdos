@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { getTheme, deriveCustomTheme } from './themes'
+import { describe, expect, it } from 'vitest'
+import { deriveCustomTheme, getTheme } from './themes'
 
 describe('getTheme', () => {
   it('returns the named theme palette', () => {

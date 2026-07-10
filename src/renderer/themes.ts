@@ -10,45 +10,45 @@ export interface Palette {
 
 const THEMES: Record<Exclude<ThemeName, 'custom'>, Palette> = {
   cosmic: {
-    bg:          '#020a18',
+    bg: '#020a18',
     edgePrimary: '#3b82f6',
-    nodeColor:   '#e2e8f0',
-    glowColor:   '#60a5fa',
+    nodeColor: '#e2e8f0',
+    glowColor: '#60a5fa',
     accentColor: '#3b82f6',
   },
   ember: {
-    bg:          '#0c0500',
+    bg: '#0c0500',
     edgePrimary: '#f97316',
-    nodeColor:   '#fef3c7',
-    glowColor:   '#fb923c',
+    nodeColor: '#fef3c7',
+    glowColor: '#fb923c',
     accentColor: '#f97316',
   },
   aurora: {
-    bg:          '#011008',
+    bg: '#011008',
     edgePrimary: '#10b981',
-    nodeColor:   '#d1fae5',
-    glowColor:   '#34d399',
+    nodeColor: '#d1fae5',
+    glowColor: '#34d399',
     accentColor: '#10b981',
   },
   neon: {
-    bg:          '#000000',
+    bg: '#000000',
     edgePrimary: '#ec4899',
-    nodeColor:   '#ffffff',
-    glowColor:   '#f472b6',
+    nodeColor: '#ffffff',
+    glowColor: '#f472b6',
     accentColor: '#ec4899',
   },
   obsidian: {
-    bg:          '#111111',
+    bg: '#111111',
     edgePrimary: '#94a3b8',
-    nodeColor:   '#ffffff',
-    glowColor:   '#cbd5e1',
+    nodeColor: '#ffffff',
+    glowColor: '#cbd5e1',
     accentColor: '#94a3b8',
   },
   sakura: {
-    bg:          '#0a0510',
+    bg: '#0a0510',
     edgePrimary: '#f472b6',
-    nodeColor:   '#fce7f3',
-    glowColor:   '#f9a8d4',
+    nodeColor: '#fce7f3',
+    glowColor: '#f9a8d4',
     accentColor: '#f472b6',
   },
 }
@@ -59,7 +59,8 @@ export function deriveCustomTheme(cssColor: string): Palette {
   const r = parseInt(cssColor.slice(1, 3), 16) / 255
   const g = parseInt(cssColor.slice(3, 5), 16) / 255
   const b = parseInt(cssColor.slice(5, 7), 16) / 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b)
   let h = 0
   if (max !== min) {
     const d = max - min

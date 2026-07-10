@@ -1,21 +1,34 @@
-import type { WorkerInput, WorkerOutput, RingName, ThemeName } from './worker/types'
-import { getTheme } from './renderer/themes'
 import { render } from './renderer/canvas-renderer'
+import { getTheme } from './renderer/themes'
 import { exportPNG } from './ui/export'
+import type {
+  RingName,
+  ThemeName,
+  WorkerInput,
+  WorkerOutput,
+} from './worker/types'
 
 // ── localStorage helpers ───────────────────────────────────────────────────
 function safeGet(key: string, fallback: string): string {
-  try { return localStorage.getItem(key) ?? fallback } catch { return fallback }
+  try {
+    return localStorage.getItem(key) ?? fallback
+  } catch {
+    return fallback
+  }
 }
 
 function safeSet(key: string, value: string): void {
-  try { localStorage.setItem(key, value) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    /* ignore */
+  }
 }
 
 // ── Per-ring defaults ──────────────────────────────────────────────────────
 const DEFAULTS = {
   gauss: { n: 10, scale: 2.0, glow: 8, angle: 0 },
-  cm:    {        scale: 2.0, glow: 8, angle: 0 },
+  cm: { scale: 2.0, glow: 8, angle: 0 },
 }
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -38,13 +51,18 @@ function setComputing(active: boolean) {
   if (active) {
     computingTimer = setTimeout(() => computingEl.classList.add('visible'), 120)
   } else {
-    if (computingTimer) { clearTimeout(computingTimer); computingTimer = null }
+    if (computingTimer) {
+      clearTimeout(computingTimer)
+      computingTimer = null
+    }
     computingEl.classList.remove('visible')
   }
 }
 
 function spawnWorker() {
-  const next = new Worker(new URL('./worker/ring-engine.ts', import.meta.url), { type: 'module' })
+  const next = new Worker(new URL('./worker/ring-engine.ts', import.meta.url), {
+    type: 'module',
+  })
   next.onmessage = (e: MessageEvent<WorkerOutput>) => {
     setComputing(false)
     if (e.data.error) {
@@ -116,34 +134,38 @@ function applyAccent() {
 }
 
 // ── Slider element refs ────────────────────────────────────────────────────
-const nSlider    = document.getElementById('slider-n') as HTMLInputElement
-const nVal       = document.getElementById('val-n')!
+const nSlider = document.getElementById('slider-n') as HTMLInputElement
+const nVal = document.getElementById('val-n')!
 const paramsPanel = document.querySelector('.params')!
 const scaleSlider = document.getElementById('slider-scale') as HTMLInputElement
-const scaleVal    = document.getElementById('val-scale')!
-const glowSlider  = document.getElementById('slider-glow') as HTMLInputElement
-const glowVal     = document.getElementById('val-glow')!
+const scaleVal = document.getElementById('val-scale')!
+const glowSlider = document.getElementById('slider-glow') as HTMLInputElement
+const glowVal = document.getElementById('val-glow')!
 const angleSlider = document.getElementById('slider-angle') as HTMLInputElement
-const angleVal    = document.getElementById('val-angle')!
+const angleVal = document.getElementById('val-angle')!
 
 // ── Per-ring settings ──────────────────────────────────────────────────────
 function loadRingSettings(ring: RingName) {
   const defaults = DEFAULTS[ring]
   if (ring === 'gauss') {
     currentN = Number(safeGet('erdos-gauss-n', String(DEFAULTS.gauss.n)))
-    nSlider.value = String(currentN); nVal.textContent = String(currentN)
+    nSlider.value = String(currentN)
+    nVal.textContent = String(currentN)
   }
   currentScale = Number(safeGet(`erdos-${ring}-scale`, String(defaults.scale)))
-  currentGlow  = Number(safeGet(`erdos-${ring}-glow`,  String(defaults.glow)))
+  currentGlow = Number(safeGet(`erdos-${ring}-glow`, String(defaults.glow)))
   currentAngle = Number(safeGet(`erdos-${ring}-angle`, String(defaults.angle)))
-  scaleSlider.value = String(currentScale); scaleVal.textContent = currentScale.toFixed(1)
-  glowSlider.value  = String(currentGlow);  glowVal.textContent  = String(currentGlow)
-  angleSlider.value = String(currentAngle); angleVal.textContent = currentAngle + '°'
+  scaleSlider.value = String(currentScale)
+  scaleVal.textContent = currentScale.toFixed(1)
+  glowSlider.value = String(currentGlow)
+  glowVal.textContent = String(currentGlow)
+  angleSlider.value = String(currentAngle)
+  angleVal.textContent = currentAngle + '°'
 }
 
 // ── Disclaimer elements ────────────────────────────────────────────────────
 const disclaimerGauss = document.getElementById('disclaimer-gauss')!
-const disclaimerCm    = document.getElementById('disclaimer-cm')!
+const disclaimerCm = document.getElementById('disclaimer-cm')!
 
 function updateDisclaimer(ring: RingName) {
   disclaimerGauss.classList.toggle('hidden', ring !== 'gauss')
@@ -151,9 +173,11 @@ function updateDisclaimer(ring: RingName) {
 }
 
 // ── Ring selector ──────────────────────────────────────────────────────────
-document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach(btn => {
+document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.ring-btn').forEach(b => b.classList.remove('active'))
+    document
+      .querySelectorAll('.ring-btn')
+      .forEach((b) => b.classList.remove('active'))
     btn.classList.add('active')
     currentRing = btn.dataset.ring as RingName
     safeSet('erdos-ring', currentRing)
@@ -180,16 +204,54 @@ function bindSlider(
   })
 }
 
-bindSlider(nSlider, nVal, String, () => 'erdos-gauss-n', v => { currentN = v; dispatchWorkerDebounced() })
-bindSlider(scaleSlider, scaleVal, v => v.toFixed(1), () => `erdos-${currentRing}-scale`, v => { currentScale = v; scheduleRender() })
-bindSlider(glowSlider, glowVal, String, () => `erdos-${currentRing}-glow`, v => { currentGlow = v; scheduleRender() })
-bindSlider(angleSlider, angleVal, v => v + '°', () => `erdos-${currentRing}-angle`, v => { currentAngle = v; scheduleRender() })
+bindSlider(
+  nSlider,
+  nVal,
+  String,
+  () => 'erdos-gauss-n',
+  (v) => {
+    currentN = v
+    dispatchWorkerDebounced()
+  },
+)
+bindSlider(
+  scaleSlider,
+  scaleVal,
+  (v) => v.toFixed(1),
+  () => `erdos-${currentRing}-scale`,
+  (v) => {
+    currentScale = v
+    scheduleRender()
+  },
+)
+bindSlider(
+  glowSlider,
+  glowVal,
+  String,
+  () => `erdos-${currentRing}-glow`,
+  (v) => {
+    currentGlow = v
+    scheduleRender()
+  },
+)
+bindSlider(
+  angleSlider,
+  angleVal,
+  (v) => v + '°',
+  () => `erdos-${currentRing}-angle`,
+  (v) => {
+    currentAngle = v
+    scheduleRender()
+  },
+)
 
 // ── Theme swatches ─────────────────────────────────────────────────────────
-document.querySelectorAll<HTMLDivElement>('.swatch').forEach(sw => {
+document.querySelectorAll<HTMLDivElement>('.swatch').forEach((sw) => {
   if (sw.dataset.theme === 'custom') return
   sw.addEventListener('click', () => {
-    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'))
+    document
+      .querySelectorAll('.swatch')
+      .forEach((s) => s.classList.remove('active'))
     sw.classList.add('active')
     currentTheme = sw.dataset.theme as ThemeName
     applyAccent()
@@ -197,10 +259,14 @@ document.querySelectorAll<HTMLDivElement>('.swatch').forEach(sw => {
   })
 })
 
-const customColorInput = document.getElementById('custom-color') as HTMLInputElement
+const customColorInput = document.getElementById(
+  'custom-color',
+) as HTMLInputElement
 customColorInput.addEventListener('input', () => {
   customColor = customColorInput.value
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'))
+  document
+    .querySelectorAll('.swatch')
+    .forEach((s) => s.classList.remove('active'))
   document.querySelector('[data-theme="custom"]')!.classList.add('active')
   currentTheme = 'custom'
   applyAccent()
@@ -230,20 +296,27 @@ document.getElementById('btn-desktop')!.addEventListener('click', () => {
 const cwInput = document.getElementById('cw') as HTMLInputElement
 const chInput = document.getElementById('ch') as HTMLInputElement
 
-cwInput.addEventListener('input', () => safeSet('erdos-export-w', cwInput.value))
-chInput.addEventListener('input', () => safeSet('erdos-export-h', chInput.value))
+cwInput.addEventListener('input', () =>
+  safeSet('erdos-export-w', cwInput.value),
+)
+chInput.addEventListener('input', () =>
+  safeSet('erdos-export-h', chInput.value),
+)
 
 document.getElementById('btn-custom-export')!.addEventListener('click', () => {
   const w = parseInt(cwInput.value)
   const h = parseInt(chInput.value)
-  if (w < 100 || h < 100) { alert('Minimum size is 100 × 100'); return }
+  if (w < 100 || h < 100) {
+    alert('Minimum size is 100 × 100')
+    return
+  }
   exportPNG(lastPoints, lastEdges, makeExportConfig(), { w, h })
 })
 
 // ── Init ───────────────────────────────────────────────────────────────────
 const savedRing = safeGet('erdos-ring', 'gauss') as RingName
 currentRing = savedRing
-document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach(btn => {
+document.querySelectorAll<HTMLButtonElement>('.ring-btn').forEach((btn) => {
   btn.classList.toggle('active', btn.dataset.ring === currentRing)
 })
 paramsPanel.classList.toggle('cm-mode', currentRing === 'cm')
@@ -259,4 +332,6 @@ dispatchWorker()
 
 const pageLoader = document.getElementById('page-loader')!
 pageLoader.classList.add('fade-out')
-pageLoader.addEventListener('transitionend', () => pageLoader.remove(), { once: true })
+pageLoader.addEventListener('transitionend', () => pageLoader.remove(), {
+  once: true,
+})

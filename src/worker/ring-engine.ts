@@ -1,9 +1,13 @@
 /// <reference lib="webworker" />
-import type { WorkerInput, WorkerOutput } from './types'
+
 import { computeGauss } from './rings/gaussian'
+import type { WorkerInput, WorkerOutput } from './types'
 
 type DatasetPayload = { points: number[]; edges: number[] }
-type LoadedDataset = { points: Float32Array<ArrayBuffer>; edges: Uint32Array<ArrayBuffer> }
+type LoadedDataset = {
+  points: Float32Array<ArrayBuffer>
+  edges: Uint32Array<ArrayBuffer>
+}
 
 const DATASET_URL = new URL('/data/cm.json', self.location.origin).toString()
 let cmDatasetPromise: Promise<LoadedDataset> | null = null
@@ -11,13 +15,13 @@ let cmDatasetPromise: Promise<LoadedDataset> | null = null
 function loadCmDataset(): Promise<LoadedDataset> {
   if (!cmDatasetPromise) {
     cmDatasetPromise = fetch(DATASET_URL)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) {
           throw new Error(`Failed to load CM dataset: ${res.status}`)
         }
         return res.json() as Promise<DatasetPayload>
       })
-      .then(data => ({
+      .then((data) => ({
         points: new Float32Array(data.points),
         edges: new Uint32Array(data.edges),
       }))
@@ -26,7 +30,10 @@ function loadCmDataset(): Promise<LoadedDataset> {
 }
 
 function post(out: WorkerOutput) {
-  ;(self as DedicatedWorkerGlobalScope).postMessage(out, [out.points.buffer, out.edges.buffer])
+  ;(self as DedicatedWorkerGlobalScope).postMessage(out, [
+    out.points.buffer,
+    out.edges.buffer,
+  ])
 }
 
 self.onmessage = (e: MessageEvent<WorkerInput>) => {
@@ -38,8 +45,8 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
       return
     case 'cm':
       loadCmDataset()
-        .then(dataset => post({ ...dataset, ring }))
-        .catch(err => {
+        .then((dataset) => post({ ...dataset, ring }))
+        .catch((err) => {
           console.error(err)
           post({
             points: new Float32Array(),

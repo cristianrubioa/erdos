@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "fix": "biome check --write .",
+    "check": "biome ci ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.3",
     "typescript": "^5.5.3",
     "vite": "^6.0.0",
     "vitest": "^4.1.10"

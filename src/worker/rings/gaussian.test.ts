@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { computeGauss } from './gaussian'
 
 describe('computeGauss', () => {
@@ -22,7 +22,8 @@ describe('computeGauss', () => {
     for (const n of samples) {
       const { points, edges } = computeGauss(n)
       for (let i = 0; i < edges.length; i += 2) {
-        const a = edges[i], b = edges[i + 1]
+        const a = edges[i],
+          b = edges[i + 1]
         const dx = points[a * 2] - points[b * 2]
         const dy = points[a * 2 + 1] - points[b * 2 + 1]
         expect(dx * dx + dy * dy).toBe(1)
