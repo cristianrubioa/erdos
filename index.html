@@ -98,12 +98,8 @@
       height: 100%;
     }
 
-    /* ── Section label ── */
+    /* ── Section label — typography from crubio-ui .crubio-section-label ── */
     .section-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: var(--accent);
     }
 
@@ -380,7 +376,7 @@
 
       <!-- Ring selector -->
       <div>
-        <div class="section-label" style="margin-bottom:0.5rem">Ring</div>
+        <div class="section-label crubio-section-label" style="margin-bottom:0.5rem">Ring</div>
         <div class="ring-group">
           <button type="button" class="ring-btn active" data-ring="gauss" title="Gaussian integer lattice — classic Erdős construction (1946)">
             <i class="fa-solid fa-border-all"></i>
@@ -399,7 +395,7 @@
 
       <!-- Parameters -->
       <div>
-        <div class="section-label" style="margin-bottom:0.5rem">Parameters</div>
+        <div class="section-label crubio-section-label" style="margin-bottom:0.5rem">Parameters</div>
         <div class="params" style="display:flex;flex-direction:column;gap:0.5rem">
 
           <div id="n-slider-row" class="slider-row">
@@ -439,7 +435,7 @@
 
       <!-- Theme -->
       <div>
-        <div class="section-label" style="margin-bottom:0.5rem">Theme</div>
+        <div class="section-label crubio-section-label" style="margin-bottom:0.5rem">Theme</div>
         <div class="swatches-grid">
           <div class="swatch active" data-theme="cosmic" style="background:#3b82f6" title="Cosmic"></div>
           <div class="swatch" data-theme="ember"   style="background:#f97316" title="Ember"></div>
@@ -458,7 +454,7 @@
 
       <!-- Export -->
       <div>
-        <div class="section-label" style="margin-bottom:0.5rem">Export</div>
+        <div class="section-label crubio-section-label" style="margin-bottom:0.5rem">Export</div>
         <div class="export-group">
           <button type="button" class="export-btn" id="btn-phone" title="Export at phone wallpaper size (2160 × 3840)">
             <i class="fa-solid fa-mobile-screen"></i>
