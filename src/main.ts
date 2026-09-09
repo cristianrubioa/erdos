@@ -1,6 +1,8 @@
+import './style.css'
 import { render } from './renderer/canvas-renderer'
 import { getTheme } from './renderer/themes'
 import { exportPNG } from './ui/export'
+import './ui/sidebar'
 import type {
   RingName,
   ThemeName,
