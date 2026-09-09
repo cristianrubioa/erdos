@@ -126,6 +126,7 @@ function scheduleRender() {
       scale: currentScale,
       angleDeg: currentAngle,
       glow: currentGlow,
+      dpr: window.devicePixelRatio || 1,
     })
   })
 }

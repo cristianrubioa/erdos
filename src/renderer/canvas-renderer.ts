@@ -6,6 +6,7 @@ export interface RenderConfig {
   angleDeg: number
   glow: number
   showStats?: boolean
+  dpr?: number
 }
 
 export function render(
@@ -14,7 +15,7 @@ export function render(
   edges: Uint32Array,
   config: RenderConfig,
 ): void {
-  const { palette, scale, angleDeg, glow, showStats = true } = config
+  const { palette, scale, angleDeg, glow, showStats = true, dpr = 1 } = config
   const W = ctx.canvas.width
   const H = ctx.canvas.height
   const minDim = Math.min(W, H)
@@ -116,11 +117,18 @@ export function render(
     ctx.save()
     ctx.globalAlpha = 0.4
     ctx.fillStyle = '#94a3b8'
-    const fs = Math.max(10, Math.round(minDim * 0.016))
+    // Sized in CSS pixels (minDim/dpr), not device pixels, so the on-screen
+    // text stays legible on high-DPR phones instead of shrinking with dpr.
+    // Floor raised from 10 to 13: 10 CSS px reads as illegible ant-text on
+    // small canvases (phone/tablet); desktop's larger minDim already clears
+    // this floor via the 0.016 coefficient, so it's unaffected.
+    const cssMinDim = minDim / dpr
+    const fs = Math.max(13, Math.round(cssMinDim * 0.016)) * dpr
+    const margin = 10 * dpr
     ctx.font = `${fs}px system-ui, sans-serif`
     ctx.textAlign = 'right'
     ctx.textBaseline = 'bottom'
-    ctx.fillText(`${n} pts · ${edgeCount} edges`, W - 10, H - 8)
+    ctx.fillText(`${n} pts · ${edgeCount} edges`, W - margin, H - margin * 0.8)
     ctx.restore()
   }
 }
