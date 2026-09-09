@@ -508,10 +508,10 @@ body {
     left: 0;
   }
 
-  /* Dropping the blur here avoids a mobile GPU compositing issue where the
-     backdrop-filter layer rasterizes icons/text inside it at a lower
-     resolution than the device's pixel ratio. Background opacity already
-     does most of the visual separation from the canvas. */
+  /* Cheaper on mobile GPUs; background opacity already does most of the
+     visual separation from the canvas. (Turned out unrelated to the canvas
+     blur bug — that was resizeCanvas() not scaling for devicePixelRatio,
+     fixed in main.ts.) */
   #panel {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
