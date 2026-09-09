@@ -106,8 +106,12 @@ let rafPending = false
 
 function resizeCanvas() {
   const wrap = canvas.parentElement!
-  canvas.width = wrap.clientWidth
-  canvas.height = wrap.clientHeight
+  // Backing-store resolution must match device pixel density, or the browser
+  // upscales a lower-res bitmap and every line/node renders blurry (most
+  // visible on high-DPR phones).
+  const dpr = window.devicePixelRatio || 1
+  canvas.width = wrap.clientWidth * dpr
+  canvas.height = wrap.clientHeight * dpr
   scheduleRender()
 }
 
