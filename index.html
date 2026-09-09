@@ -7,9 +7,13 @@
   <meta name="description" content="Interactive unit-distance graph visualizer exploring the Erdős construction and OpenAI's 2025 CM ring result, with wallpaper export." />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://crubio.fyi" />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- tokens.css pulls this same Inter stylesheet via its own @import, but only once it
+       has already downloaded — discovering it here too lets the browser start fetching it
+       in parallel instead of waiting through that extra hop. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="https://crubio.fyi/crubio-ui/app/tokens.css" />
   <!-- Font Awesome loaded non-blocking: icons hide behind #page-loader anyway, so deferring costs nothing visible -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'" />
